@@ -69,11 +69,8 @@
             win.iDelay = function () {
                 var d = this;
 
-                d.settings = {
+                d.settings
 
-
-                }
-                console.log(new Date);
 
 
                 // 返回浏览器的可视区域位置
