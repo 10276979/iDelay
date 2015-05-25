@@ -5,7 +5,7 @@
  *
  * Create Time: 2015-05-24 20:19
  *
- * Modify Time: 2015-05-25 09:37
+ * Modify Time: 2015-05-25 16:05
  *
  * Version: 1.0.1
  *
@@ -17,128 +17,123 @@
     "use strict";
 
     win.iDelay = function (Attrs) {
-        var $d = this,
-            hasTouch = 'ontouchstart' in window;
+        this.hasTouch = 'ontouchstart' in window;
 
-        $d.settings = {
+        this.settings = {
             el: win,
             imgEl: "iDelay",
             poll: null,
             pollTime: 250,
             //placeholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAANSURBVBhXYzh8+PB/AAffA0nNPuCLAAAAAElFTkSuQmCC"
-        }
-
+        };
         // 循环绑定参数
-        for (var a in Attrs) $d.settings[a] = Attrs[a];
+        for (var a in Attrs) this.settings[a] = Attrs[a];
+        this.init();
+    };
+
+    iDelay.prototype = {
 
         // 初始化
-        $d.init = function () {
-
-            $d.getImgEl();
+        init: function () {
+            this.getImgEl();
 
             // img添加占位
-            //$d.imgFor(function (index) {
-            //    $d.imgEl.item(index).src = $d.settings.placeholder;
+            //this.imgFor(function (index) {
+            //    this.imgEl.item(index).src = this.settings.placeholder;
             //});
 
-            $d.addEvent();
-        };
-        $d.addEvent = function () {
-            win.addEventListener("load", $d.checkInMobile, false);
-            win.addEventListener("scroll", $d.checkInMobile, false);
-            win.addEventListener("resize", $d.checkInMobile, false);
-        }
+            this.addEvent();
+        },
+        addEvent: function () {
+            var that = this;
+            win.addEventListener("load", function () { that.handleComputerMobile(); }, false);
+            win.addEventListener("scroll", function () { that.handleComputerMobile(); }, false);
+            win.addEventListener("resize", function () { that.handleComputerMobile(); }, false);
+        },
 
         // 获取所有img
-        $d.getImgEl = function () {
-            $d.imgEl = doc.querySelectorAll("." + $d.settings.imgEl);
-        };
+        getImgEl: function () {
+            this.imgEl = doc.querySelectorAll("." + this.settings.imgEl);
+        },
 
         // img循环处理
-        $d.imgFor = function (call) {
-            for (var d = 0, dMax = $d.imgEl.length; d < dMax; d++) {
+        imgFor: function (call) {
+            for (var d = 0, dMax = this.imgEl.length; d < dMax; d++) {
                 call(d);
             }
-        };
-        $d.handleLoca = function () {
-            $d.getImgEl();
-            var client = $d.getClient(),
+        },
+        handleLoca: function () {
+            var that = this;
+            that.getImgEl();
+            var client = that.getClient(),
                 imgClient = null;
             //console.log(client.top + client.height)
 
-            $d.imgFor(function (index) {
-                imgClient = $d.getImgClient($d.imgEl.item(index));
+            that.imgFor(function (index) {
+                imgClient = that.getImgClient(that.imgEl.item(index));
 
                 // 检测是否出现在当前可见区域
                 if ((imgClient.top + imgClient.height) > client.top && (client.top + client.height) > imgClient.top) {
 
                     // 创建img对象
-                    $d.createImg(index, function (img) {
+                    var img = new Image();
+                    img.src = that.imgEl.item(index).getAttribute("data-src");
+                    img.onload = function () {
 
-                        // 检测img是否加载完成
-                        img.onload = function () {
-
-                            // 当出现在可见区域则显示img
-                            $d.imgEl.item(index).src = img.src;
-                        }
-                    });
+                        // 当出现在可见区域则显示img
+                        that.imgEl.item(index).src = img.src;
+                    }
                 }
             });
-        };
+        },
 
         // 清除setTimeout
-        $d.clearSettingTimeout = function () {
-            win.clearTimeout($d.settings.poll);
-            $d.settings.poll = null;
-        };
+        clearSettingTimeout: function () {
+            win.clearTimeout(this.settings.poll);
+            this.settings.poll = null;
+        },
 
-        // 检测是否为移动端
-        $d.checkInMobile = function () {
-            if (hasTouch) {
-                if ($d.settings.poll != null) {
-                    $d.clearSettingTimeout();
+        // 处理PC端和移动端差别
+        handleComputerMobile: function () {
+            var that = this;
+            if (that.hasTouch) {
+                if (that.settings.poll != null) {
+                    that.clearSettingTimeout();
                 }
 
                 // 处理移动端scroll延迟250ms
-                $d.settings.poll = win.setTimeout(function () {
-                    $d.handleLoca();
-                    $d.clearSettingTimeout();
-                }, $d.settings.pollTime);
+                that.settings.poll = win.setTimeout(function () {
+                    that.handleLoca();
+                    that.clearSettingTimeout();
+                }, that.settings.pollTime);
             } else {
-                $d.handleLoca();
+                that.handleLoca();
             }
-        };
-
-        // 根据src创建img
-        $d.createImg = function (index, call) {
-            var img = new Image();
-            img.src = $d.imgEl.item(index).getAttribute("data-src");
-            call(img);
-        };
+        },
 
         // 检索img所在位置
-        //$d.checkImgLoca = function () {
-        //    $d.imgFor(function (index) {
-        //        console.log($d.getImgClient($d.imgEl.item(index)));
+        //checkImgLoca : function () {
+        //    this.imgFor(function (index) {
+        //        console.log(this.getImgClient(this.imgEl.item(index)));
         //    });
-        //}
+        //},
 
-        // 返回浏览器的可视区域位置
-        $d.getClient = function () {
+        // 获取浏览器的可视区域位置
+        getClient: function () {
             var t, h;
             t = doc.documentElement.scrollTop || doc.body.scrollTop;
             h = doc.documentElement.clientHeight;
             return { top: t, height: h };
-        };
+        },
 
-        // 返回待加载资源位置
-        $d.getImgClient = function (p) {
+        // 获取待加载资源位置
+        getImgClient: function (p) {
             var t = 0, h;
             t = p.offsetTop;
             h = p.offsetHeight;
             return { top: t, height: h };
         }
-
-        $d.init();
     };
+
+    window.iDelay = iDelay;
 })(window, document);
