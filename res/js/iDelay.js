@@ -9,6 +9,8 @@
  *
  * Version: 1.0.1
  *
+ * 优化地方:用prototype    没必要回调，就要减少回调（修改img src的地方回调）    既然是检测 那就要返回一个状态。     
+ *
  */
 
 ; (function (win, doc) {
