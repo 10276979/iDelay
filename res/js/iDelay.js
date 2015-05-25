@@ -3,9 +3,11 @@
  *
  * Create person: 张飞超
  *
- * Modify Time: 2015-05-24 21:48
+ * Create Time: 2015-05-24 20:19
  *
- * Version: 1.0.0
+ * Modify Time: 2015-05-25 09:37
+ *
+ * Version: 1.0.1
  *
  */
 
@@ -13,12 +15,15 @@
     "use strict";
 
     win.iDelay = function (Attrs) {
-        var $d = this;
+        var $d = this,
+            hasTouch = 'ontouchstart' in window;
 
         $d.settings = {
             el: win,
             imgEl: "iDelay",
-            placeholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAANSURBVBhXYzh8+PB/AAffA0nNPuCLAAAAAElFTkSuQmCC"
+            poll: null,
+            pollTime: 250,
+            //placeholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAANSURBVBhXYzh8+PB/AAffA0nNPuCLAAAAAElFTkSuQmCC"
         }
 
         // 循环绑定参数
@@ -37,9 +42,9 @@
             $d.addEvent();
         };
         $d.addEvent = function () {
-            win.addEventListener("load", $d.handleLoca, false);
-            win.addEventListener("scroll", $d.handleLoca, false);
-            win.addEventListener("resize", $d.handleLoca, false);
+            win.addEventListener("load", $d.checkInMobile, false);
+            win.addEventListener("scroll", $d.checkInMobile, false);
+            win.addEventListener("resize", $d.checkInMobile, false);
         }
 
         // 获取所有img
@@ -77,7 +82,30 @@
                     });
                 }
             });
-        }
+        };
+
+        // 清除setTimeout
+        $d.clearSettingTimeout = function () {
+            win.clearTimeout($d.settings.poll);
+            $d.settings.poll = null;
+        };
+
+        // 检测是否为移动端
+        $d.checkInMobile = function () {
+            if (hasTouch) {
+                if ($d.settings.poll != null) {
+                    $d.clearSettingTimeout();
+                }
+
+                // 处理移动端scroll延迟250ms
+                $d.settings.poll = win.setTimeout(function () {
+                    $d.handleLoca();
+                    $d.clearSettingTimeout();
+                }, $d.settings.pollTime);
+            } else {
+                $d.handleLoca();
+            }
+        };
 
         // 根据src创建img
         $d.createImg = function (index, call) {
