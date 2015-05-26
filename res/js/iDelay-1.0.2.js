@@ -7,7 +7,7 @@
  *
  * Modify Time: 2015-05-26 16:08
  *
- * Version: 1.0.21
+ * Version: 1.0.2
  *
  * 新版增加了移动端 动态加载元素后也进行懒加载 需要setEl("滚动的ID")  增加新图片之后调addImgEl()
  *
@@ -47,14 +47,14 @@
         addEvent: function () {
             var that = this;
             console.log(that);
-            that.settings.el.addEventListener("load", function () { that.handleComputerMobile(); }, false);
+            //that.settings.el.addEventListener("load", function () { that.handleComputerMobile(); }, false); // 加载完成之后在getImgEl中来执行
             that.settings.el.addEventListener("scroll", function () { that.handleComputerMobile(); }, false);
             that.settings.el.addEventListener("resize", function () { that.handleComputerMobile(); }, false);
         },
 
         // 获取所有img
         getImgEl: function () {
-            console.log(this.settings.el);
+            this.handleComputerMobile();
             this.imgEl = doc.querySelectorAll("." + this.settings.imgEl);
         },
 
